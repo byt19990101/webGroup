@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>空壳书店</title>
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/index.css">
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="js/getParameter.js"></script>
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]><![endif]-->
+    <script>
+        $(function () {
+            $.get('/bookstore/user/findOne', {},
+                function (usr) {
+                    $.get('/bookstore/cart/findCartByUid',
+                        {uid: usr.uid},
+                        function (cartList) {
+                            var lis = "";
+                            var sum = 0;
+                            for (var i = 0; i < cartList.length; i++) {
+                                var book = cartList[i].book;
+                                var li = '<tr>\n' +
+                                    '                    <td><input type="checkbox" class="checkOne" name="checkOne" value="' + book.bid + '" onclick="change()"></td>\n' +
+                                    '                    <td><img src="' + book.image + '" width="70px" height="60px">\n' +
+                                    '                        <a href="book_detail.html?bid=' + book.bid + '" class="btn btn-link">' + book.bookname + '</a>\n' +
+                                    '                    </td>\n' +
+                                    '                    <td id="price">￥' + book.price + '</td>\n' +
+                                    '                    <td align="center">\n' +
+                                    '                        <input type="text" value="' + cartList[i].num + '" />\n' +
+                                    '                    </td>\n' +
+                                    '                    <td id="total" name="price" >' +Math.round(book.price * cartList[i].num*10)/10 +'</td>\n' +
+                                    // '                    <td align="center"><button type="button" id="deleteOne" class="btn btn-link delete">删除</button></td>\n' +
+                                    '                </tr>';
+                                lis += li;
+                            }
+                            $("#goods").html(lis);
+                            lif = '<div align="right" width="100%" id="mowei" style="padding-right: 50px">\n' +
+                                '        <font>商品金额：  </font>\n' +
+                                '        <font id="sum" size="" color="#FF7B00">￥' + sum + '元</font><br>\n' +
+                                '        <form action="" method="post">\n' +
+                                '            <input type="button" class="btn btn-link" onclick="deleteSelect()" value="删除选中"></input>\n' +
+                                '            <input type="button" id="anniu" onclick="sub()" value="提交订单" />\n' +
+                                '        </form>\n' +
+                                '    </div>';
+                            $("#mowei").html(lif);
+                        }, "json")
+                }, "json")
+        })
+
+        function change() {
+            var items = document.getElementsByName("checkOne");
+            var prices = document.getElementsByName("price");
+            var sum = 0 ;
+            for(var x=0;x<items.length;x++){
+                if(items[x].checked)
+                    sum += parseFloat(prices[x].innerText);
+            }
+            var spanNode = document.getElementById("sum");
+            spanNode.innerHTML ="￥"+sum+"元";
+        }
+
+        function checkAll() {
+            var checkAll = document.getElementById('checkAll');
+            var checkOne = document.getElementsByName('checkOne');
+            if (checkAll.checked == true) {
+                for (var i = 0; i < checkOne.length; i++) {
+                    checkOne[i].checked = true;
+                }
+            } else {
+                for (var i = 0; i < checkOne.length; i++) {
+                    checkOne[i].checked = false;
+                }
+            }
+            change();
+        }
+
+        function deleteSelect() {
+            var bids = [];
+            $(".checkOne").each(function () {
+                $(this).is(":checked") && bids.push($(this).val());
+            })
+            // var bid = result.split(",");
+            $.get("/bookstore/user/findOne", {},
+                function (user) {
+                    $.ajax({
+                        type: "get",
+                        traditional: true,
+                        url: "/bookstore/cart/deleteSelect",
+                        data: {uid: user.uid, bids},
+                        dataType: "json",
+                        success: function (res) {
+                            alert("删除成功");
+                            window.location.reload();
+                        }
+                    })
+                }, "json")
+        }
+
+        // function deleteAll() {
+        //     $.get("/bookstore/cart/deleteAll",{uid:uid},
+        //         function () {
+        //
+        //         },"json")
+        // }
+
+        function sub() {
+            var bids = [];
+            $(".checkOne").each(function () {
+                $(this).is(":checked") && bids.push($(this).val());
+            })
+            $.get("/bookstore/user/findOne", {},
+                function (user) {
+                    $.ajax({type: "get",
+                        traditional: true,
+                        url:"/bookstore/cart/account",
+                        data:{uid: user.uid, bids},
+                        success:function (res) {
+                            alert("结算成功");
+                            location.href = "index.html";
+                        }
+                    })
+                }, "json")
+        }
+    </script>
+</head>
+<body>
+<!--引入头部 许-->
+<div id="header"></div>
+<!-- banner start-->
+
+<div id="表格" align="center">
+    <div>
+        <div>
+            <font size="6px"><b>订单详情</b></font>
+        </div>
+        <div style="width: 80%">
+            <table class="table table-bordered" id="cart">
+                <thead bgcolor="antiquewhite">
+
+                <tr>
+                    <th><input type="checkbox" id="checkAll" onclick="checkAll()">全选</th>
+                    <th>商品</th>
+                    <th>单价</th>
+                    <th>数量</th>
+                    <th>小计</th>
+                </tr>
+                </thead>
+                <tbody id="goods">
+                <tr>
+                    <td><input type="checkbox" name="checkOne" checked></td>
+                    <td><img src="imgs/104336-1_b_3.jpg" width="70px" height="60px">
+                        <a href="book_detail.html" class="btn btn-link">书名</a>
+                    </td>
+                    <td id="price">￥298.00</td>
+                    <td align="center">
+                        <input type="text" value="1"/>
+                    </td>
+                    <td id="total">￥596.00</td>
+                    <td align="center">
+                        <button type="button" class="btn btn-link delete">删除</button>
+                    </td>
+                </tr>
+                <tr>
+                    <td><input type="checkbox" name="checkOne" checked></td>
+                    <td><img src="imgs/104336-1_b_3.jpg" width="70px" height="60px">
+                        <a href="book_detail.html" class="btn btn-link">本书不存在</a>
+                    </td>
+                    <td>￥0.00</td>
+                    <td align="center">
+                        <input type="text" value="1"/>
+                    </td>
+                    <td name="price">￥0.00</td>
+                    <td align="center">
+                        <button type="button" class="btn btn-link delete">删除</button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div align="right" width="100%" id="mowei" style="padding-right: 50px">
+        <font>商品金额：</font>
+        <font size="" color="#FF7B00">￥0.00元</font><br>
+        <form action="" method="post">
+            <input type="button" class="btn btn-link">清空购物车</input>
+            <input type="button" id="anniu" value="提交订单"/>
+        </form>
+    </div>
+</div>
+
+<!--导入底部-->
+<div id="footer"></div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="js/jquery-3.3.1.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<!--导入布局js，共享header和footer-->
+<script type="text/javascript" src="js/include.js"></script>
+</body>
+</html>

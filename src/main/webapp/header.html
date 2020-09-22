@@ -1,0 +1,130 @@
+<script>
+    $(function () {
+        $.get('/bookstore/user/findOne',{},
+            function (data) {
+                if(data != null){
+            var msg = '欢迎回来, ' + data.username;
+            $("#loginMsg").html(msg);
+            $("#login_out").hide();
+                }else {
+                    $("#login_in").hide()
+                }
+        },"json");
+
+        $.get('/bookstore/category/findAll',{},
+            function (data) {
+                var lis = ' <li class="nav-active"><a href="index.html">首页</a></li>';
+                var tid = location.search.split("tid=")[1];
+                if(tid == undefined){
+                    tid = 0;
+                }
+                for (var i = 0 ; i < data.length;i++){
+                    if(tid == data[i].tid){
+                        var li = '<li class="nav-active"><a href="book_list.html?tid='+data[i].tid+'">'+data[i].tname+'</a></li>';
+                    }else{
+                        var li = '<li><a href="book_list.html?tid='+data[i].tid+'">'+data[i].tname+'</a></li>';
+                    }
+
+                    lis += li;}
+                $("#navlist").html(lis);
+            },"json");
+    });
+
+    function searchbook() {
+        var search = $("#search").val();
+        var li = '<a href="book_list.html?search='+ search +'">搜索</a>';
+        $("#search-button").html(li);
+    }
+
+</script>
+<style type="text/css">
+    ul li:hover {background-color:#ffff00;}
+</style>
+
+<!-- 头部 start -->
+    <header id="header">
+        <div class="top_banner">
+            <img src="images/8.jpg" alt="" width="100%">
+
+        </div>
+            <div class="shortcut" style="background-color: #ddd ;width: 100%;padding-right: 10%">
+            <!-- 未登录状态  -->
+            <div class="login_out" id="login_out">
+                <a href="login.html">登录</a>
+                <a href="register.html">注册</a>
+            </div>
+            <!-- 登录状态  -->
+            <div class="login" id="login_in">
+                <span id="loginMsg"></span>
+                <a href="cart.html" class="collection">购物车</a>
+                <a href="update.html" class="collection">个人资料</a>
+                <a href="/bookstore/user/logout">退出</a>
+            </div>
+        </div>
+        <div class="header_wrap">
+            <div class="topbar">
+                <div class="logo">
+                    <a href="/"><img src="images/logo.png" alt=""></a>
+                </div>
+                <div class="search">
+                    <input style="border-color:mediumspringgreen" id="search" name="search" type="text" placeholder="请输入想要的书名/作者/出版社" class="search_input" autocomplete="off">
+                    <a href="javascript:;" id="search-button" class="search-button" onclick="searchbook()" style="background: mediumspringgreen">搜索</a>
+                </div>
+                <div class="hottel">
+                    <div class="hot_pic">
+                        <img src="images/hot_tel.jpg" alt="">
+                    </div>
+                    <div class="hot_tel">
+                        <p class="hot_time">客服电话(9:00-20:00)</p>
+                        <p class="hot_num">400-800-8820</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+    <!-- 头部 end 下次 -->
+     <!-- 首页导航 -->
+    <div class="navitem" style="background:mediumspringgreen">
+        <ul class="nav" id="navlist">
+            <li class="nav-active" style="background:mediumspringgreen"><a href="index.html">首页</a></li>
+            <li><a href="book_list.html">文学</a>
+                <!--<ul>
+                    <li><a href="#">中国古诗词</a></li>
+                    <li><a href="#">纪实文学</a></li>
+                    <li><a href="#">名家作品</a></li>
+                </ul>-->
+            </li>
+            <li><a href="book_list.html">教育</a>
+               <!-- <ul>
+                    <li><a href="#">教材</a></li>
+                    <li><a href="#">外语</a></li>
+                    <li><a href="#">考试</a></li>
+                </ul>-->
+            </li>
+            <li><a href="book_list.html">小说</a>
+                <!--<ul>
+                    <li><a href="#">当代小说</a></li>
+                    <li><a href="#">古典小说</a></li>
+                    <li><a href="#">网络小说</a></li>
+                </ul>-->
+            </li>
+            <li><a href="book_list.html">童书</a>
+               <!-- <ul>
+                    <li><a href="#">科普百科</a></li>
+                    <li><a href="#">绘本</a></li>
+                </ul>-->
+            </li>
+            <li><a href="book_list.html">经管</a>
+               <!-- <ul>
+                    <li><a href="#">经济</a></li>
+                    <li><a href="#">管理</a></li>
+                </ul>-->
+            </li>
+            <li><a href="book_list.html" style="margin-bottom: 5px">人文社科</a>
+                <ul>
+                    <!--<li><a href="#">心理学</a></li>
+                    <li><a href="#">哲学</a></li>-->
+                </ul>
+            </li>
+        </ul>
+    </div>

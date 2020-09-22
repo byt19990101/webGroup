@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title id="ending">空壳书店-搜索</title>
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" href="css/search.css">
+    <script src="js/jquery-3.3.1.js"></script>
+    <script src="js/getParameter.js"></script>
+    <script>
+        $(function () {
+            var tid = location.search.split("tid=")[1];
+            if(tid == undefined){
+                tid = 0;
+            }
+            var search = location.search.split("search=")[1];
+            load(tid,1,search);
+            //$("#search").val(decodeURI(search));
+        });
+        function load(tid,currentPage,search){
+            $.get('/bookstore/book/queryPage',
+                {tid:tid,currentPage: currentPage,search:search},
+                function(pb) {
+                    //pb就是pageBean的json对象
+                    $("#totalCount").html(pb.totalCount);
+                    $("#totalPage").html(pb.totalPage);
+                    var start = pb.currentPage - 5;
+                    var end = pb.currentPage + 4;
+
+                    if (start<1){
+                        start = 1;
+                        end = start+9;
+                    }
+                    if (end > pb.totalPage){
+                        end = pb.totalPage;
+                        start = end - 9;
+                    }
+                    if (pb.totalPage<10){
+                        start = 1;
+                        end = pb.totalPage;
+                    }
+
+                    var lis = "";
+                    var firstPage = '<li><a href="javascript:load('+tid+',1,'+search+')">首页</a></li>';
+                    var beforeNum = pb.currentPage - 1;
+                    if (beforeNum < 1) {
+                        beforeNum = 1;
+                    }
+                    var beforePage = '<li class="threeword"><a href="javascript:load('+tid+', '+beforeNum+','+search+')">上一页</a></li>';
+                    lis += firstPage;
+                    lis += beforePage;
+                    for (var i = start; i <= end; i++) {
+                        var li;
+                        if (i == pb.currentPage) {
+                            li = '<li class="curPage" onclick="load('+tid+','+i+','+search+')"><a href="javascript:;">'+i+'</a></li>';
+                        } else {
+                            li = '<li onclick="load('+tid+','+i+','+search+')"><a href="javascript:;">'+i+'</a></li>';
+                        }
+                        lis += li;
+                    }
+                    var nextNum = pb.currentPage+1;
+                    if (nextNum > pb.totalPage){
+                        nextNum = pb.totalPage;
+                    }
+                    var nextPage = '<li class="threeword"><a href="javascript:load('+tid+','+nextNum+','+search+')">下一页</a></li>';
+                    lis += nextPage;
+                    var lastPage = '<li class="threeword"><a href="javascript:load('+tid+','+pb.totalPage+','+search+')">末页</a></li>';
+                    lis += lastPage;
+                    $("#pageIndex").html(lis);
+
+
+                    var lisList = "";
+                    for (var i = 0; i < pb.list.length; i++) {
+                        var book = pb.list[i];
+                        var li ='<li>\n' +
+                            '                            <div class="img"><img src="'+book.image+'" width="299px" ></div>\n' +
+                            '                            <div class="text1">\n' +
+                            '                                <p>'+book.bookname+'</p>\n' +
+                            '                                <br/>\n' +
+                            '                                <p>'+book.author+'</p>\n' +
+                            '                            </div>\n' +
+                            '                            <div class="price">\n' +
+                            '                                <p class="price_num">\n' +
+                            '                                    <span>&yen;</span>\n' +
+                            '                                    <span>'+book.price+'</span>\n' +
+                            '                                    <span>起</span>\n' +
+                            '                                </p>\n' +
+                            '                                <p><a href="book_detail.html?bid='+pb.list[i].bid+'">查看详情</a></p>\n' +
+                            '                            </div>\n' +
+                            '                        </li>';
+                        lisList += li;
+                    }
+                    $("#list").html(lisList);
+                },"json")
+        }
+       /* $(function () {
+            var tid = location.search.split("=")[1];
+            var search = $("#search").val();
+            load(tid);
+        })
+        function load(tid,currentPage,search){
+            $.get('/bookstore/book/queryPage',
+            {tid:tid,currentPage: currentPage,search:search},
+            function(pb) {
+                //pb就是pageBean的json对象
+                $("#totalCount").html(pb.totalCount);
+                $("#totalPage").html(pb.totalPage);
+                var start = pb.currentPage - 5;
+                var end = pb.currentPage + 4;
+
+                if (start<1){
+                    start = 1;
+                    end = start+9;
+                }
+                if (end > pb.totalPage){
+                    end = pb.totalPage;
+                    start = end - 9;
+                }
+                if (pb.totalPage<10){
+                    start = 1;
+                    end = pb.totalPage;
+                }
+
+                var lis = "";
+                var firstPage = '<li><a href="javascript:load('+tid+',1)">首页</a></li>';
+                var beforeNum = pb.currentPage - 1;
+                if (beforeNum < 1) {
+                    beforeNum = 1;
+                }
+                var beforePage = '<li class="threeword"><a href="javascript:load('+tid+', '+beforeNum+')">上一页</a></li>';
+                lis += firstPage;
+                lis += beforePage;
+                for (var i = start; i <= end; i++) {
+                    var li;
+                    if (i == pb.currentPage) {
+                        li = '<li class="curPage" onclick="load('+tid+','+i+')"><a href="javascript:;">'+i+'</a></li>';
+                    } else {
+                        li = '<li onclick="load('+tid+','+i+')"><a href="javascript:;">'+i+'</a></li>';
+                    }
+                    lis += li;
+                }
+                var nextNum = pb.currentPage+1;
+                if (nextNum > pb.totalPage){
+                    nextNum = pb.totalPage;
+                }
+                var nextPage = '<li class="threeword"><a href="javascript:load('+tid+','+nextNum+')">下一页</a></li>';
+                lis += nextPage;
+                var lastPage = '<li class="threeword"><a href="javascript:load('+tid+','+pb.totalPage+')">末页</a></li>';
+                lis += lastPage;
+                $("#pageIndex").html(lis);
+
+
+                var lisList = "";
+                for (var i = 0; i < pb.list.length; i++) {
+                    var book = pb.list[i];
+                    var li ='<li>\n' +
+        '                            <div class="img"><img src="'+book.image+'" width="299px" ></div>\n' +
+        '                            <div class="text1">\n' +
+        '                                <p>'+book.bookname+'</p>\n' +
+        '                                <br/>\n' +
+        '                                <p>'+book.author+'</p>\n' +
+        '                            </div>\n' +
+        '                            <div class="price">\n' +
+        '                                <p class="price_num">\n' +
+        '                                    <span>&yen;</span>\n' +
+        '                                    <span>'+book.price+'</span>\n' +
+        '                                    <span>起</span>\n' +
+        '                                </p>\n' +
+        '                                <p><a href="book_detail.html?bid='+pb.list[i].bid+'">查看详情</a></p>\n' +
+        '                            </div>\n' +
+        '                        </li>'
+                    lisList += li;
+                }
+                $("#list").html(lisList);
+            },"json")
+        }*/
+    </script>
+</head>
+<body>
+<!--引入头部-->
+<div id="header"></div>
+    <div class="page_one">
+        <div class="contant">
+            <div class="crumbs">
+                <p>空壳书店><span>搜索结果</span></p>
+            </div>
+            <div class="xinxi clearfix">
+                <div class="left">
+                    <div class="header">
+                        <span>商品信息</span>
+                        <span class="jg">价格</span>
+                    </div>
+                    <ul id="list">
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="img"><img src="images/1.jpg" width="300" alt=""></div>
+                            <div class="text1" style="right: 5px">
+                                <p>作品名字</p>
+                                <br/>
+                                <p>作者</p>
+                            </div>
+                            <div class="price">
+                                <p class="price_num">
+                                    <span>&yen;</span>
+                                    <span>299</span>
+                                    <span>起</span>
+                                </p>
+                                <p><a href="book_detail.html">查看详情</a></p>
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="page_num_inf">
+                        <i></i> 共
+                        <span id="totalPage">12</span>页<span id="totalCount">132</span>条
+                    </div>
+                    <div class="pageNum">
+                        <ul id="pageIndex">
+                            <li><a href="">首页</a></li>
+                            <li class="threeword"><a href="#">上一页</a></li>
+                            <li><a href="#">1</a></li>
+                            <li><a href="#">2</a></li>
+                            <li><a href="#">3</a></li>
+                            <li><a href="#">4</a></li>
+                            <li><a href="#">5</a></li>
+                            <li><a href="#">6</a></li>
+                            <li><a href="#">7</a></li>
+                            <li><a href="#">8</a></li>
+                            <li><a href="#">9</a></li>
+                            <li><a href="#">10</a></li>
+                            <li class="threeword"><a href="javascript:;">下一页</a></li>
+                            <li class="threeword"><a href="javascript:;">末页</a></li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!--引入头部-->
+    <div id="footer"></div>
+    <!--导入布局js，共享header和footer-->
+    <script type="text/javascript" src="js/include.js"></script>
+</body>
+
+</html>

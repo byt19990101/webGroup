@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>路线详情</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+    <link rel="stylesheet" type="text/css" href="css/common.css">
+    <link rel="stylesheet" type="text/css" href="css/route-detail.css">
+    <script src="js/getParameter.js"></script>
+    <script>
+        function adder(){
+            var count=document.getElementById("number").innerHTML;
+            count=parseInt(count)+1;
+            document.getElementById("number").innerHTML=count;
+        }
+        function minuser() {
+            var count = document.getElementById("number").innerHTML;
+            if (count <= 1) {
+                count = 1;
+            } else {
+                count = parseInt(count) - 1;
+            }
+            document.getElementById("number").innerHTML = count;
+        }
+    </script>
+    <style>
+        #number{
+            padding-right: 20px;
+            font-size: 20px;
+        }
+        #minus{
+            padding-right: 20px;
+        }
+        #plus{
+            padding-right: 20px;
+        }
+        #addCart{
+            background-image: url("images/addCart.png");
+            width: 198px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+
+<body>
+<!--引入头部-->
+<div id="header"></div>
+<!-- 详情 start -->
+<div class="wrap">
+    <div class="bread_box">
+        <a href="index.html">首页</a>
+        <span> &gt;</span>
+        <a href="#">文学</a><span> &gt;</span>
+        <a href="#">巷里林泉</a>
+    </div>
+    <div class="prosum_box">
+        <dl class="prosum_left">
+            <dt>
+                <img alt="" class="big_img"  id="big_img" src="images/13.jpg">
+            </dt>
+        </dl>
+        <div class="prosum_right">
+            <p class="pros_title" id="bookname">巷里林泉</p>
+            <p class="hot" id="introduction">继《幸得诸君慰平生》作者故园风雨前ZUI新力作。这是一本颜值颇高又很伏手的美文集，线装裸脊、全彩印刷，护封的街巷与内封的花树处处都是童年回忆，一同向喜欢这本书的你致意。 读遍十方简，更多文学每100减40>></p>
+            <div class="pros_other">
+                <p id="sname">经营商家 : 空壳书店</p>
+                <p id="consphone">咨询电话 : 400-800-8820</p>
+                <p id="address">地址 : 杭州指针信息技术程序员</p>
+            </div><br>
+            <div style="background-color: white">
+                <p class="hot" ><strong id="price" style="font-size: 25px">优惠价:¥59.00</strong></p> <br>
+                <p ><strong id="sales">总销量:999</strong></p>
+            </div><br>
+            <div style="background-color: white">
+                <p class="hot" ><strong id="useraddress" style="font-size: 20px">配送至:浙江</strong></p>
+            </div><br>
+            <div >
+                <p  ><strong  style="font-size: 20px">购买数量:</strong></p>
+                <ul class="counter">
+                    <div>
+                        <div style="float: left"  id="minus"><input type="button" onclick="minuser()" value="-"/></div>
+                        <div style="float: left" id="number">1</div>
+                        <div style="float: left" id="plus"><input type="button" onclick="adder()" value="+"/></div>
+                        <input type="button"  id="addCart" onclick="addCart()">
+                    </div>
+                </ul>
+            </div>
+        </div>
+        <div class="you_need_konw">
+            <span>价格说明</span>
+            <div class="notice">
+                定价：为出版社全国统一定价；<br>
+                空壳价：为商品的销售价，是您最终决定是否购买商品的依据；受系统缓存影响，最终价格以商品放入购物车后显示的价格为准；
+            </div><br>
+
+
+            <span>关于新广告法声明</span>
+            <div class="notice">
+                新广告法规定所有页面信息中不得出现绝对化用词和功能性用词。
+
+                本店非常支持新广告法，但为了不影响消费者正常购买，页面明显区域本店已在排查修改，对于不明显区域也将会逐步排查并修改，我们此郑重声明：本店所有页面上的绝对化用词与功能性用词在此声明全部失效，不作为赔付理由。涉及“教育部声明”中的商品，均不代表教育部指定、推荐的具体版本，仅代表该商品的内容为指定、推荐书目。因极限用词引起的任何形式的商品赔付，本店不接收且不妥协。希望消费者理解并欢迎联系客服帮助完善，也请职业打假人士高抬贵手。
+            </div>
+        </div>
+    </div>
+</div>
+    <!-- 详情 end -->
+    <!--引入头部-->
+    <div id="footer"></div>
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="js/jquery-3.3.1.js"></script>
+    <!-- Include all compiled plugins (below), or include individual files as needed -->
+    <script src="js/bootstrap.min.js"></script>
+    <!--导入布局js，共享header和footer-->
+    <script type="text/javascript" src="js/include.js"></script>
+    <script src="js/getParameter.js"></script>
+
+    <script>
+        $(function () {
+            var  bid = getParameter("bid");
+            $.get("/bookstore/book/detail",
+                {bid:bid},
+                function (book) {
+                    $.get("/bookstore/user/findOne",{},
+                        function (usr) {
+                            $("#useraddress").html('配送至: '+usr.address);
+                        },"json");
+                    $("#bookname").html(book.bookname);
+                    $("#introduction").html(book.introduction);
+                    $("#price").html('¥'+book.price);
+                    $("#sales").html('总销量: '+book.sales);
+
+                    $("#big_img").prop('src', book.image);
+
+                    load()
+                },"json")
+
+        });
+
+        function addCart() {
+            var bid = getParameter("bid");
+            var number = document.getElementById("number").innerText;
+            $.get("/bookstore/user/findOne",{},
+                function (user) {
+                    if (user){
+                        $.get("/bookstore/cart/add",
+                            {bid:bid,number:number,uid:user.uid},
+                            function (info){
+                                alert("已加入购物车")
+                                location.href = "#";
+                            },"json")
+                    }else {
+                        alert("请先登录");
+                        location.href = "/bookstore/login.html";
+                    }
+                },"json")
+        }
+    </script>
+
+</body>
+
+</html>

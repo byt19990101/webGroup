@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>修改个人资料</title>
+	<link rel="stylesheet" type="text/css" href="css/common.css">
+	<link rel="stylesheet" href="css/register.css">
+	<!--导入jquery-->
+	<script src="js/jquery-3.3.1.js"></script>
+	<script src="js/jquery.validate.min.js"></script>
+	<script>
+		$(function () {
+			$.get('/bookstore/user/findOne',{},
+					function (data) {
+						$("#username").val(data.username);
+						$("#password").val(data.password);
+						$("#email").val(data.email);
+						$("#telephone").val(data.telephone);
+						$("#address").val(data.address);
+					},"json");
+
+			$("#submit").click(function () {
+				var flag = $("#updateForm").valid();
+				if (flag) {
+					// 想要发送修改的请求
+					$.post("/bookstore/user/update",
+							// 将表单数据转换为json格式
+							$("#updateForm").serialize(),
+							function () {
+									alert("修改成功！");
+							}, "json");
+				}
+			});
+
+			$("#updateForm").validate({
+				rules: {
+
+					password: {
+						required: true,
+						minlength: 6,
+						maxlength: 18
+					},
+					email: {
+						required: true,
+						email: true
+					},
+					address: {
+						required: true,
+					},
+					telephone: {
+						required: true,
+						minlength: 11,
+						maxlength: 11,
+					}
+				},
+
+				messages: {
+                    password: {
+                        required: "密码不能为空",
+                        minlength: "请输入6~18位",
+                        maxlength: "请输入6~18位",
+                    },
+                    email: {
+                        required: "邮箱不能为空",
+                        email: "请输入正确的邮箱"
+                    },
+					address: {
+						required: "地址不能为空"
+					},
+					telephone: {
+						required: "联系电话不能为空",
+						minlength: "请输入正确的号码",
+						maxlength: "请输入正确的号码"
+					}
+
+                }
+
+			});
+		})
+	</script>
+</head>
+<body>
+
+<!--引入头部-->
+<div id="header" ></div>
+<!-- 头部 end -->
+<div class="rg_layout" style="background-image: url(images/update.png);">
+	<div class="rg_form clearfix" >
+
+		<div class="rg_form_center" style="margin-left: 300px ">
+
+			<!--注册表单-->
+			<form id="updateForm" style="align-content: center">
+				<!--提交处理请求的标识符-->
+				<input type="hidden" name="action" value="update">
+				<table style="margin-top: 25px;">
+					<tr>
+						<td class="td_left">
+							<label for="username">用户名</label>
+						</td>
+						<td class="td_right">
+							<label id="username-error" class="error" for="username"></label>
+							<input type="text" id="username" name="username" style="background-color:rebeccapurple" readonly="readonly">
+						</td>
+					</tr>
+					<tr>
+						<td class="td_left">
+							<label for="password">密码</label>
+						</td>
+						<td class="td_right">
+							<label id="password-error" class="error" for="password"></label>
+							<input type="text" id="password" name="password"  >
+						</td>
+
+					</tr>
+					<tr>
+						<td class="td_left">
+							<label for="email">Email</label>
+						</td>
+						<td class="td_right">
+							<label id="email-error" class="error" for="email"></label>
+							<input type="text" id="email" name="email">
+						</td>
+					</tr>
+					<tr>
+						<td class="td_left">
+							<label for="telephone">手机号</label>
+						</td>
+						<td class="td_right">
+							<label id="telephone-error" class="error" for="telephone"></label>
+							<input type="text" id="telephone" name="telephone" >
+						</td>
+
+					</tr>
+					<tr>
+						<td class="td_left">
+							<label for="address">地址</label>
+						</td>
+						<td class="td_right">
+							<label id="address-error" class="error" for="address"></label>
+							<input type="text" id="address" name="address" >
+						</td>
+					</tr>
+					<tr>
+						<td class="td_left">
+							<label for="sex">性别</label>
+						</td>
+						<td class="td_right gender">
+							<input type="radio" id="sex" name="sex" value="男" checked> 男
+							<input type="radio" name="sex" value="女"> 女
+						</td>
+					</tr>
+
+					<tr>
+						<td class="td_left">
+						</td>
+						<td class="td_right check">
+							<input type="button" id="submit" name="submit" class="submit" value="修改">
+							<span id="msg" style="color: red;"></span>
+						</td>
+						<td class="td_right check">
+							<input type="button"  name="submit" class="submit" value="返回" onclick="javascript:location.href='index.html'"/>
+							<span id="msg" style="color: red;"></span>
+						</td>
+					</tr>
+				</table>
+			</form>
+		</div>
+	</div>
+</div>
+<!--引入尾部-->
+<div id="footer"></div>
+<!--导入布局js，共享header和footer-->
+<script type="text/javascript" src="js/include.js"></script>
+
+</body>
+</html>
